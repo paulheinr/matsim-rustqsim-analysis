@@ -1,5 +1,7 @@
 package org.matsim.analysis;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.matsim.api.core.v01.Id;
 import org.matsim.api.core.v01.events.LinkEnterEvent;
 import org.matsim.api.core.v01.events.LinkLeaveEvent;
@@ -9,6 +11,8 @@ import org.matsim.api.core.v01.network.Link;
 import org.matsim.core.api.experimental.events.EventsManager;
 import org.matsim.core.events.EventsUtils;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -40,9 +44,7 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
         travelTimesByLinkId
                 .computeIfAbsent(linkLeaveEvent.getLinkId(), id -> new LinkedList<>())
                 .add(new TravelTimeInformation(linkLeaveEvent.getTime() - linkEnterEvent.getTime(), linkLeaveEvent.getTime()));
-
         this.linkEnterEventCache.remove(linkEnterEvent);
-
     }
 
     public void printResult() {
@@ -51,6 +53,25 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
             System.out.println("Link: " + linkId.toString());
             System.out.println("Travel times: " + getMetricPerHour(linkId, this::getTravelTimeAverageBetween));
             System.out.println("Traffic flow: " + getMetricPerHour(linkId, this::getTrafficFlowBetween));
+        }
+    }
+
+    public void exportResult() throws IOException {
+        FileWriter output = new FileWriter("./results/link_analysis.csv");
+        try (CSVPrinter printer = new CSVPrinter(output, CSVFormat.EXCEL.withDelimiter(';'))) {
+            List<String> header = new LinkedList<>();
+            header.add("linkId");
+            header.addAll(IntStream.range(0, 24).mapToObj(i -> "avgTravelTimePerHour" + i).toList());
+            header.addAll(IntStream.range(0, 24).mapToObj(i -> "trafficFlowPerHour" + i).toList());
+            printer.printRecord(header);
+
+            for (Id<Link> linkId : travelTimesByLinkId.keySet()) {
+                List<String> csvEntry = new LinkedList<>();
+                csvEntry.add(linkId.toString());
+                csvEntry.addAll(getMetricPerHourAsString(linkId, this::getTravelTimeAverageBetween));
+                csvEntry.addAll(getMetricPerHourAsString(linkId, this::getTrafficFlowBetween));
+                printer.printRecord(csvEntry);
+            }
         }
     }
 
@@ -77,7 +98,11 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
                 .collect(Collectors.toList());
     }
 
-    public static void main(String[] args) {
+    private <R> List<String> getMetricPerHourAsString(Id<Link> linkId, Function3<Id<Link>, Integer, Integer, R> getMetricBetweenTime) {
+        return getMetricPerHour(linkId, getMetricBetweenTime).stream().map(Object::toString).collect(Collectors.toList());
+    }
+
+    public static void main(String[] args) throws IOException {
         String pathToEventsFile = "./results/output_events.xml";
 
         EventsManager manager = EventsUtils.createEventsManager();
@@ -85,6 +110,7 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
         manager.addHandler(handler);
         EventsUtils.readEvents(manager, pathToEventsFile);
         handler.printResult();
+        handler.exportResult();
     }
 
     private record TravelTimeInformation(double travelTime, double timeOfLinkLeave) {
@@ -96,6 +122,6 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
 
     @FunctionalInterface
     private interface Function3<A, B, C, R> {
-        public R apply(A a, B b, C c);
+        R apply(A a, B b, C c);
     }
 }

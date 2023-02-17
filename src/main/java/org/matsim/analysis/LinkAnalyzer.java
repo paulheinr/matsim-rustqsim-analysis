@@ -24,6 +24,17 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
     private final List<LinkEnterEvent> linkEnterEventCache = new LinkedList<>();
     private final Map<Id<Link>, List<TravelTimeInformation>> travelTimesByLinkId = new HashMap<>();
 
+    public static void main(String[] args) throws IOException {
+        String pathToEventsFile = "./results/output_events.xml";
+
+        EventsManager manager = EventsUtils.createEventsManager();
+        LinkAnalyzer handler = new LinkAnalyzer();
+        manager.addHandler(handler);
+        EventsUtils.readEvents(manager, pathToEventsFile);
+        handler.printResult();
+        handler.exportResult();
+    }
+    
     @Override
     public void handleEvent(LinkEnterEvent linkEnterEvent) {
         linkEnterEventCache.add(linkEnterEvent);
@@ -100,17 +111,6 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
 
     private <R> List<String> getMetricPerHourAsString(Id<Link> linkId, Function3<Id<Link>, Integer, Integer, R> getMetricBetweenTime) {
         return getMetricPerHour(linkId, getMetricBetweenTime).stream().map(Object::toString).collect(Collectors.toList());
-    }
-
-    public static void main(String[] args) throws IOException {
-        String pathToEventsFile = "./results/output_events.xml";
-
-        EventsManager manager = EventsUtils.createEventsManager();
-        LinkAnalyzer handler = new LinkAnalyzer();
-        manager.addHandler(handler);
-        EventsUtils.readEvents(manager, pathToEventsFile);
-        handler.printResult();
-        handler.exportResult();
     }
 
     private record TravelTimeInformation(double travelTime, double timeOfLinkLeave) {

@@ -21,6 +21,11 @@ import java.util.stream.IntStream;
 public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandler {
     private final List<LinkEnterEvent> linkEnterEventCache = new LinkedList<>();
     private final Map<Id<Link>, List<TravelTimeInformation>> travelTimesByLinkId = new HashMap<>();
+    private final String id;
+
+    public LinkAnalyzer(String id) {
+        this.id = id;
+    }
 
     @Override
     public void handleEvent(LinkEnterEvent linkEnterEvent) {
@@ -47,15 +52,15 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
 
     public void printResult() {
         for (Id<Link> linkId : travelTimesByLinkId.keySet()) {
-            System.out.println("-------------------------");
+            System.out.println("----- " + this + " -----");
             System.out.println("Link: " + linkId.toString());
             System.out.println("Travel times: " + getMetricPerHour(linkId, this::getTravelTimeAverageBetween));
             System.out.println("Traffic flow: " + getMetricPerHour(linkId, this::getTrafficFlowBetween));
         }
     }
 
-    public void exportResult() throws IOException {
-        FileWriter output = new FileWriter("./results/link_analysis.csv");
+    public void exportResult(String path) throws IOException {
+        FileWriter output = new FileWriter(path);
         try (CSVPrinter printer = new CSVPrinter(output, CSVFormat.EXCEL.withDelimiter(';'))) {
             List<String> header = new LinkedList<>();
             header.add("linkId");
@@ -100,6 +105,17 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
         return getMetricPerHour(linkId, getMetricBetweenTime).stream().map(Object::toString).collect(Collectors.toList());
     }
 
+    protected double getOverallTravelTime() {
+        return this.travelTimesByLinkId.values().stream().flatMap(List::stream)
+                .map(info -> info.travelTime)
+                .mapToDouble(Double::doubleValue)
+                .sum();
+    }
+
+    public String getId() {
+        return id;
+    }
+
     private record TravelTimeInformation(double travelTime, double timeOfLinkLeave) {
         @Override
         public String toString() {
@@ -110,5 +126,12 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
     @FunctionalInterface
     private interface Function3<A, B, C, R> {
         R apply(A a, B b, C c);
+    }
+
+    @Override
+    public String toString() {
+        return "LinkAnalyzer{" +
+                "id='" + id +
+                '}';
     }
 }

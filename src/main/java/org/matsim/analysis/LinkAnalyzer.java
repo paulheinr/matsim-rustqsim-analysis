@@ -8,8 +8,6 @@ import org.matsim.api.core.v01.events.LinkLeaveEvent;
 import org.matsim.api.core.v01.events.handler.LinkEnterEventHandler;
 import org.matsim.api.core.v01.events.handler.LinkLeaveEventHandler;
 import org.matsim.api.core.v01.network.Link;
-import org.matsim.core.api.experimental.events.EventsManager;
-import org.matsim.core.events.EventsUtils;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,17 +22,6 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
     private final List<LinkEnterEvent> linkEnterEventCache = new LinkedList<>();
     private final Map<Id<Link>, List<TravelTimeInformation>> travelTimesByLinkId = new HashMap<>();
 
-    public static void main(String[] args) throws IOException {
-        String pathToEventsFile = "./results/output_events.xml";
-
-        EventsManager manager = EventsUtils.createEventsManager();
-        LinkAnalyzer handler = new LinkAnalyzer();
-        manager.addHandler(handler);
-        EventsUtils.readEvents(manager, pathToEventsFile);
-        handler.printResult();
-        handler.exportResult();
-    }
-    
     @Override
     public void handleEvent(LinkEnterEvent linkEnterEvent) {
         linkEnterEventCache.add(linkEnterEvent);
@@ -91,7 +78,7 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
                 .filter(info -> begin <= info.timeOfLinkLeave && info.timeOfLinkLeave < end).count());
     }
 
-    private Double getTravelTimeAverageBetween(Id<Link> linkId, Integer begin, Integer end) {
+    protected Double getTravelTimeAverageBetween(Id<Link> linkId, Integer begin, Integer end) {
         return travelTimesByLinkId.get(linkId)
                 .stream()
                 .filter(info -> begin <= info.timeOfLinkLeave && info.timeOfLinkLeave < end)
@@ -99,7 +86,7 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
                 .orElse(0.);
     }
 
-    private <R> List<R> getMetricPerHour(Id<Link> linkId, Function3<Id<Link>, Integer, Integer, R> getMetricBetweenTime) {
+    protected <R> List<R> getMetricPerHour(Id<Link> linkId, Function3<Id<Link>, Integer, Integer, R> getMetricBetweenTime) {
         return IntStream.range(0, 24)
                 .mapToObj(hour -> {
                     int beginInSec = hour * 60 * 60;
@@ -109,7 +96,7 @@ public class LinkAnalyzer implements LinkEnterEventHandler, LinkLeaveEventHandle
                 .collect(Collectors.toList());
     }
 
-    private <R> List<String> getMetricPerHourAsString(Id<Link> linkId, Function3<Id<Link>, Integer, Integer, R> getMetricBetweenTime) {
+    protected <R> List<String> getMetricPerHourAsString(Id<Link> linkId, Function3<Id<Link>, Integer, Integer, R> getMetricBetweenTime) {
         return getMetricPerHour(linkId, getMetricBetweenTime).stream().map(Object::toString).collect(Collectors.toList());
     }
 

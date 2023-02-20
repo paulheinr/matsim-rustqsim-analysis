@@ -41,7 +41,7 @@ public class RouteAnalyzer implements PersonEntersVehicleEventHandler, PersonLea
     public void handleEvent(PersonEntersVehicleEvent personEntersVehicleEvent) {
         Id<Person> personId = personEntersVehicleEvent.getPersonId();
 
-        assert cachedUnfinishedRoutes.stream().noneMatch(route -> route.id == personId);
+        assert cachedUnfinishedRoutes.stream().noneMatch(route -> route.personId == personId);
         cachedUnfinishedRoutes.add(new Route(personId));
         personInVehicle.put(personEntersVehicleEvent.getVehicleId(), personId);
     }
@@ -71,9 +71,13 @@ public class RouteAnalyzer implements PersonEntersVehicleEventHandler, PersonLea
     private Route getCachedRoute(Id<Vehicle> vehicleId) {
         Id<Person> personId = this.personInVehicle.get(vehicleId);
         assert personId != null;
-        List<Route> routes = this.cachedUnfinishedRoutes.stream().filter(route -> route.id == personId).toList();
+        List<Route> routes = this.cachedUnfinishedRoutes.stream().filter(route -> route.personId == personId).toList();
         assert routes.size() == 1;
         return routes.get(0);
+    }
+
+    public List<Route> getRoutes() {
+        return this.routes;
     }
 
     private void exportResult() {
@@ -86,13 +90,13 @@ public class RouteAnalyzer implements PersonEntersVehicleEventHandler, PersonLea
         }
     }
 
-    private static class Route {
-        private final Id<Person> id;
+    public static class Route {
+        private final Id<Person> personId;
         private final List<Id<Link>> travelledLinks = new LinkedList<>();
         private final List<Double> travelTimes = new LinkedList<>();
 
-        public Route(Id<Person> id) {
-            this.id = id;
+        public Route(Id<Person> personId) {
+            this.personId = personId;
         }
 
         public void addTravelTime(double travelTime) {
@@ -113,7 +117,7 @@ public class RouteAnalyzer implements PersonEntersVehicleEventHandler, PersonLea
         }
 
         public Id<Person> getId() {
-            return id;
+            return personId;
         }
 
         @Override
@@ -124,18 +128,18 @@ public class RouteAnalyzer implements PersonEntersVehicleEventHandler, PersonLea
 
             Route route = (Route) o;
 
-            return new EqualsBuilder().append(id, route.id).append(travelledLinks, route.travelledLinks).append(travelTimes, route.travelTimes).isEquals();
+            return new EqualsBuilder().append(personId, route.personId).append(travelledLinks, route.travelledLinks).append(travelTimes, route.travelTimes).isEquals();
         }
 
         @Override
         public int hashCode() {
-            return new HashCodeBuilder(17, 37).append(id).append(travelledLinks).append(travelTimes).toHashCode();
+            return new HashCodeBuilder(17, 37).append(personId).append(travelledLinks).append(travelTimes).toHashCode();
         }
 
         @Override
         public String toString() {
             return "Route{" +
-                    "id=" + id +
+                    "id=" + personId +
                     ", travelledLinks=" + travelledLinks +
                     ", travelTimes=" + travelTimes +
                     '}';

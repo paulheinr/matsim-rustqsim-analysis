@@ -96,6 +96,8 @@ def plot_speedup_both(routing_durations: Dict[int, np.ndarray], no_routing_durat
 
 
 # example: https://rowannicholls.github.io/python/graphs/plt_based/boxplots_multiple_groups.html
+# x: qsim_step, mpi_send, mpi_receive
+# y: duration
 def plot_qsim_comm_box_plots(ax: matplotlib.axes.Axes, data: Dict[int, pd.DataFrame]):
     # Set x-positions for boxes
     number_of_slots = len(data.keys())

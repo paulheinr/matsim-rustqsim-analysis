@@ -35,9 +35,8 @@ def get_duration(events, key) -> np.ndarray:
     return np.array(list(map(lambda e: duration_in_milliseconds(e["duration"]), filtered_events)))
 
 
-def extract_sim_durations(base_path: str) -> Dict[int, np.ndarray]:
+def extract_sim_durations(base_path: str, max_power: int) -> Dict[int, np.ndarray]:
     sim_durations_by_mpi_slots = {}
-    max_power = 7
     for mpi_slots in (2 ** p for p in range(0, max_power)):
         sim_durations_fixed_slot_amount = []
 
@@ -69,6 +68,18 @@ def extract_qsim_comm_durations(base_path: str, mpi_slots: int) -> Dict[int, pd.
         print(pd.DataFrame(duration_mpi_send).describe())
         print("\n## MPI Receive ##")
         print(pd.DataFrame(duration_mpi_recv).describe())
+    return result
+
+
+def extract_durations(base_path: str, mpi_slots: int, key: str, omit_first_event=True) -> Dict[int, np.ndarray]:
+    result = {}
+    first = 1 if omit_first_event else 0
+    for i in range(0, mpi_slots):
+        events = load_json_event(get_trace_file_path(base_path, mpi_slots, i))
+        durations = get_duration(events[first::1], key)
+        result[i] = durations
+        print("\n------ SLOT # " + str(i) + " | " + key + " | ------")
+        print(pd.DataFrame(durations).describe())
     return result
 
 

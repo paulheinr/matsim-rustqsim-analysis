@@ -71,8 +71,8 @@ def plot_qsim_comm_subplots(data: [Dict[int, pd.DataFrame]]):
 
 
 if __name__ == '__main__':
-    routing_base_path = "./input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/routing/"
-    non_routing_base_path = "./input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/no-routing/"
+    routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/routing/"
+    non_routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/no-routing/"
 
     routing_durations: Dict[int, np.ndarray] = extract_sim_durations(routing_base_path)
     no_routing_durations: Dict[int, np.ndarray] = extract_sim_durations(non_routing_base_path)

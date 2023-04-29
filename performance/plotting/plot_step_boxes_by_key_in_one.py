@@ -26,12 +26,12 @@ def plot_boxes_in_subplot(data: [Dict[int, np.ndarray]], key: str):
         plot_box_plots_per_run(ax[0], data[i * 2])
         plot_box_plots_per_run(ax[1], data[i * 2 + 1])
     fig.suptitle("Durations of " + key)
-    plt.show()
 
 
 if __name__ == '__main__':
     routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/routing/"
     non_routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/no-routing/"
 
-    key = "travel_time_collecting"
-    plot_boxes_in_subplot([extract_durations(routing_base_path, 2 ** i, key) for i in range(1, 7)], key)
+    for key in ["qsim_step", "mpi_send", "mpi_receive"]:
+        plot_boxes_in_subplot([extract_durations(routing_base_path, 2 ** i, key) for i in range(1, 7)], key)
+    plt.show()

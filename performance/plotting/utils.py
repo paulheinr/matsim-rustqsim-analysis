@@ -51,13 +51,14 @@ def extract_sim_durations(base_path: str, max_power: int) -> Dict[int, np.ndarra
     return sim_durations_by_mpi_slots
 
 
-def extract_qsim_comm_durations(base_path: str, mpi_slots: int) -> Dict[int, pd.DataFrame]:
+def extract_qsim_comm_durations(base_path: str, mpi_slots: int, omit_first_event=True) -> Dict[int, pd.DataFrame]:
     result = {}
+    first = 1 if omit_first_event else 0
     for i in range(0, mpi_slots):
         events = load_json_event(get_trace_file_path(base_path, mpi_slots, i))
-        duration_qsim_step = get_duration(events, "qsim_step")
-        duration_mpi_send = get_duration(events, "mpi_send")
-        duration_mpi_recv = get_duration(events, "mpi_receive")
+        duration_qsim_step = get_duration(events, "qsim_step")[first::1]
+        duration_mpi_send = get_duration(events, "mpi_send")[first::1]
+        duration_mpi_recv = get_duration(events, "mpi_receive")[first::1]
         result[i] = pd.DataFrame(
             {"qsim_step": duration_qsim_step, "mpi_send": duration_mpi_send,
              "mpi_receive": duration_mpi_recv})

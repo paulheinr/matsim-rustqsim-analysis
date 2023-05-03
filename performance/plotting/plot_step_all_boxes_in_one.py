@@ -19,13 +19,13 @@ def plot_qsim_comm_box_plots(ax: matplotlib.axes.Axes, data: Dict[int, pd.DataFr
     # Plot
     for mpi_slots, duration_arrays in data.items():
         bp = ax.boxplot(
-            np.array(duration_arrays), sym='', whis=[0, 100], widths=0.4 / number_of_slots,
+            np.array(duration_arrays), showmeans=True, sym='', whis=[0, 100], widths=0.4 / number_of_slots,
             labels=list(duration_arrays),
             positions=[x_pos[mpi_slots] + j * 1 for j in range(len(duration_arrays.T))]
         )
 
     # Titles
-    ax.set_title("Durations of simulation with " + str(number_of_slots) + " slots")
+    # ax.set_title("Durations of simulation with " + str(number_of_slots) + " slots")
     ax.set_ylabel("duration in ms")
 
     # Axis ticks and labels

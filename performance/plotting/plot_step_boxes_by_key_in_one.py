@@ -4,7 +4,7 @@ import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
 
-from utils import extract_durations
+from utils import extract_durations, BASE_PATH_ROUTING, BASE_PATH_NON_ROUTING
 
 
 def plot_box_plots_per_run(ax: matplotlib.axes.Axes, data: Dict[int, np.ndarray]):
@@ -28,10 +28,18 @@ def plot_boxes_in_subplot(data: [Dict[int, np.ndarray]], key: str):
     fig.suptitle("Durations of " + key)
 
 
-if __name__ == '__main__':
-    routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/routing/"
-    non_routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/no-routing/"
-
-    for key in ["qsim_step", "mpi_send", "mpi_receive"]:
-        plot_boxes_in_subplot([extract_durations(routing_base_path, 2 ** i, key) for i in range(1, 7)], key)
+def plot_for_routing():
+    for key in ["qsim_step", "mpi_send", "mpi_receive", "travel_time_collecting", "travel_time_aggregating",
+                "travel_time_send", "router_customization", "travel_time_handling"]:
+        plot_boxes_in_subplot([extract_durations(BASE_PATH_ROUTING, 2 ** i, key) for i in range(1, 7)], key)
     plt.show()
+
+
+def plot_for_non_routing():
+    for key in ["qsim_step", "mpi_send", "mpi_receive"]:
+        plot_boxes_in_subplot([extract_durations(BASE_PATH_NON_ROUTING, 2 ** i, key) for i in range(1, 7)], key)
+    plt.show()
+
+
+if __name__ == '__main__':
+    plot_for_routing()

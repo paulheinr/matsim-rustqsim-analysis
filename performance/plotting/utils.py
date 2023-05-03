@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+BASE_PATH_ROUTING = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/routing/"
+BASE_PATH_NON_ROUTING = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/no-routing/"
+
 
 def load_json_event(file):
     data = []

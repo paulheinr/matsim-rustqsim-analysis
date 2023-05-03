@@ -43,5 +43,5 @@ if __name__ == '__main__':
 
         print("------ Run with #MPI-Slots: " + str(number_of_slots) + " ------")
         estimated_times = get_errors_of_run(d, measured_times[number_of_slots])
-        print("Overall error (%): " + str(
+        print("Overall estimation error (%): " + str(
             (sum(estimated_times) - sum(measured_times[number_of_slots])) * 100 / sum(measured_times[number_of_slots])))

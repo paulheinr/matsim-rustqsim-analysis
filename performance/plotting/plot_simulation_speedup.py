@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from numpy import double
 
-from utils import extract_sim_durations
+from utils import extract_sim_durations, BASE_PATH_ROUTING, BASE_PATH_NON_ROUTING
 
 
 def get_speedup_by_slots(durations: Dict[int, np.ndarray]) -> tuple[np.ndarray[int], np.ndarray[double]]:
@@ -39,10 +39,7 @@ def plot_speedup_both(routing_durations: Dict[int, np.ndarray], no_routing_durat
 
 
 if __name__ == '__main__':
-    routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/routing/"
-    non_routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/no-routing/"
-
-    routing_durations: Dict[int, np.ndarray] = extract_sim_durations(routing_base_path, 7)
-    no_routing_durations: Dict[int, np.ndarray] = extract_sim_durations(non_routing_base_path, 7)
+    routing_durations: Dict[int, np.ndarray] = extract_sim_durations(BASE_PATH_ROUTING, 7)
+    no_routing_durations: Dict[int, np.ndarray] = extract_sim_durations(BASE_PATH_NON_ROUTING, 7)
 
     plot_speedup_both(routing_durations, no_routing_durations)

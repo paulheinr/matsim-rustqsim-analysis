@@ -1,24 +1,22 @@
-from typing import Dict
-
 import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
 
-from utils import extract_durations, BASE_PATH_ROUTING, BASE_PATH_NON_ROUTING
+from utils import extract_durations, BASE_PATH_ROUTING, BASE_PATH_NON_ROUTING, GENERAL_EVENTS, ROUTING_EVENTS
 
 
-def plot_box_plots_per_run(ax: matplotlib.axes.Axes, data: Dict[int, np.ndarray]):
-    ax.boxplot(data.values(), sym="", showmeans=True)
+def plot_box_plots_per_run(ax: matplotlib.axes.Axes, data: [np.ndarray]):
+    ax.boxplot(data, sym="", showmeans=True)
     ax.set_ylabel("duration in ms")
 
-    if len(data.keys()) >= 8:
+    if len(data) >= 8:
         tick_interval = 4
 
         for i, label in enumerate(ax.xaxis.get_ticklabels()):
             label.set_visible(i % tick_interval == 0)
 
 
-def plot_boxes_in_subplot(data: [Dict[int, np.ndarray]], key: str):
+def plot_boxes_in_subplot(data: [[np.ndarray]], key: str):
     runs = len(data)
     assert runs % 2 == 0
     fig, axes = plt.subplots(int(runs / 2), 2)  # axes = [[11, 12], [21,22]]
@@ -29,14 +27,13 @@ def plot_boxes_in_subplot(data: [Dict[int, np.ndarray]], key: str):
 
 
 def plot_for_routing():
-    for key in ["qsim_step", "mpi_send", "mpi_receive", "travel_time_collecting", "travel_time_aggregating",
-                "travel_time_send", "router_customization", "travel_time_handling"]:
+    for key in GENERAL_EVENTS + ROUTING_EVENTS:
         plot_boxes_in_subplot([extract_durations(BASE_PATH_ROUTING, 2 ** i, key) for i in range(1, 7)], key)
     plt.show()
 
 
 def plot_for_non_routing():
-    for key in ["qsim_step", "mpi_send", "mpi_receive"]:
+    for key in GENERAL_EVENTS:
         plot_boxes_in_subplot([extract_durations(BASE_PATH_NON_ROUTING, 2 ** i, key) for i in range(1, 7)], key)
     plt.show()
 

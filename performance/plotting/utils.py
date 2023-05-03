@@ -1,4 +1,5 @@
 import json
+from functools import reduce
 from typing import Any, Dict
 
 import matplotlib.pyplot as plt
@@ -7,6 +8,10 @@ import pandas as pd
 
 BASE_PATH_ROUTING = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/routing/"
 BASE_PATH_NON_ROUTING = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/no-routing/"
+
+GENERAL_EVENTS = ["qsim_step", "mpi_send", "mpi_receive"]
+ROUTING_EVENTS = ["travel_time_collecting", "travel_time_aggregating", "travel_time_send", "travel_time_handling",
+                  "router_customization"]
 
 
 def load_json_event(file):
@@ -75,16 +80,29 @@ def extract_qsim_comm_durations(base_path: str, mpi_slots: int, omit_first_event
     return result
 
 
-def extract_durations(base_path: str, mpi_slots: int, key: str, omit_first_event=True) -> Dict[int, np.ndarray]:
-    result = {}
+def extract_durations(base_path: str, mpi_slots: int, key: str, omit_first_event=True) -> [np.ndarray]:
+    result = []
     first = 1 if omit_first_event else 0
     for i in range(0, mpi_slots):
         events = load_json_event(get_trace_file_path(base_path, mpi_slots, i))
         durations = get_duration(events[first::1], key)
-        result[i] = durations
+        result.append(durations)
         print("\n------ SLOT # " + str(i) + " | " + key + " | ------")
         print(pd.DataFrame(durations).describe())
     return result
+
+
+def get_mean_duration_of_run(data: [np.ndarray]) -> float:
+    return reduce(lambda a, b: np.concatenate((a, b), axis=None), data, np.array([])).mean()
+
+
+def get_mean_list(data: [[np.ndarray]]) -> [float]:
+    return list(map(lambda d: get_mean_duration_of_run(d), data))
+
+
+def get_speedup_list(data: [[np.ndarray]]) -> [float]:
+    mean_list = get_mean_list(data)
+    return [mean_list[0] / m for m in mean_list]
 
 
 def plot_millis_by_updates(file: str, key: str):

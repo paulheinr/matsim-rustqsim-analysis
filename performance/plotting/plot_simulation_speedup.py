@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 from numpy import double
 
-from utils import extract_sim_durations, BASE_PATH_ROUTING, BASE_PATH_NON_ROUTING
+from utils import extract_sim_durations, BASE_PATH_ROUTING
 
 
 def get_speedup_by_slots(durations: Dict[int, np.ndarray]) -> tuple[np.ndarray[int], np.ndarray[double]]:
@@ -30,16 +30,15 @@ def plot_speedup(ax: matplotlib.axes.Axes, averages_by_slots: tuple[np.ndarray[i
 # plots speedup graph for both routing and non-routing scenario
 # x: # MPI slots
 # y: speedup factor
-def plot_speedup_both(routing_durations: Dict[int, np.ndarray], no_routing_durations: Dict[int, np.ndarray]):
+def plot_speedup_both(routing_durations: Dict[int, np.ndarray]):
     fig, [ax1, ax2] = plt.subplots(1, 2, figsize=(10, 5))
     plot_speedup(ax1, get_speedup_by_slots(routing_durations), "Speedup for Routing")
-    plot_speedup(ax2, get_speedup_by_slots(no_routing_durations), "Speedup for Non-Routing")
 
     plt.show()
 
 
 if __name__ == '__main__':
     routing_durations: Dict[int, np.ndarray] = extract_sim_durations(BASE_PATH_ROUTING, 7)
-    no_routing_durations: Dict[int, np.ndarray] = extract_sim_durations(BASE_PATH_NON_ROUTING, 7)
+    # no_routing_durations: Dict[int, np.ndarray] = extract_sim_durations(BASE_PATH_NON_ROUTING, 7)
 
-    plot_speedup_both(routing_durations, no_routing_durations)
+    plot_speedup_both(routing_durations)

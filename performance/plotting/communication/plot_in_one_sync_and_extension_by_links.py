@@ -5,29 +5,34 @@ from matplotlib import pyplot as plt
 
 import plotting.utils as utils
 
+
+def get_slot_wise_means(key, power):
+    durations = utils.extract_durations("../" + utils.BASE_PATH_ROUTING, 2 ** power, key, True)
+    slot_wise_means = utils.get_slot_wise_mean_list(durations)
+    return np.array(slot_wise_means)
+
+
 if __name__ == '__main__':
-    range = range(6, 7)
+    POWER = 10
+    # aggregate data
+    mean_aggregation = get_slot_wise_means("travel_time_aggregating", POWER)
+
     # extension data
-    extension_durations = [
-        utils.extract_durations("../" + utils.BASE_PATH_ROUTING, 2 ** i, "travel_time_augmenting", True) for i
-        in range]
-    slot_wise_means_extension = utils.get_slot_wise_mean_list(extension_durations)
-    flattened_mean_extension = np.array(list(itertools.chain.from_iterable(slot_wise_means_extension)))
+    flattened_mean_extension = get_slot_wise_means("travel_time_augmenting", POWER)
 
     # sync data
-    sync_durations = [
-        utils.extract_durations("../" + utils.BASE_PATH_ROUTING, 2 ** i, "travel_time_communicating_lengths", True)
-        for i in range]
-    slot_wise_means_sync = utils.get_slot_wise_mean_list(sync_durations)
-    flattened_mean_sync = np.array(list(itertools.chain.from_iterable(slot_wise_means_sync)))
+    flattened_mean_sync = get_slot_wise_means("travel_time_communicating_lengths", POWER)
 
     # links
-    links = [utils.extract_simulation_metadata("../" + utils.BASE_PATH_ROUTING, 2 ** i) for i in range]
+    links = [utils.extract_simulation_metadata("../" + utils.BASE_PATH_ROUTING, 2 ** i) for i in
+             range(POWER, POWER + 1)]
     flattened_links = list(map(lambda d: d["localLinks"], itertools.chain.from_iterable(links)))
 
     plt.scatter(flattened_links, flattened_mean_sync, marker=".", color="blue", label="Synchronization")
-    plt.scatter(flattened_links, flattened_mean_extension, marker=".", color="orange", label="Extension")
-    plt.scatter(flattened_links, flattened_mean_sync + flattened_mean_extension, marker="+", color="red", label="Sum")
+    plt.scatter(flattened_links, mean_aggregation, marker=".", color="green", label="Aggregation")
+    plt.scatter(flattened_links, flattened_mean_extension, marker=".", color="orange", label="Insertion")
+    plt.scatter(flattened_links, flattened_mean_sync + flattened_mean_extension + mean_aggregation, marker="+",
+                color="red", label="Sum")
 
     xseq = np.linspace(min(flattened_links), max(flattened_links), num=10)
 
@@ -38,7 +43,7 @@ if __name__ == '__main__':
     plt.plot(xseq, a_sync + b_sync * xseq, linestyle="dashed", color="blue")
     plt.plot(xseq, a_extension + b_extension * xseq, linestyle="dashed", color="orange")
 
-    plt.xlabel("Number of Links")
+    plt.xlabel("# Links")
     plt.ylabel("Duration in ms")
     plt.grid(True, alpha=0.3)
 

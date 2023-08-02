@@ -4,7 +4,6 @@ import matplotlib
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
-
 from utils import extract_qsim_comm_durations
 
 
@@ -50,7 +49,7 @@ def plot_qsim_comm_subplots(data: [Dict[int, pd.DataFrame]]):
 
 
 if __name__ == '__main__':
-    routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/routing/"
-    non_routing_base_path = "../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/no-routing/"
+    routing_base_path = "../../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/routing/"
+    non_routing_base_path = "../../input/runs_b9f8752f20c85767224605fa9296f3c10d93eb92/no-routing/"
 
     plot_qsim_comm_subplots([extract_qsim_comm_durations(non_routing_base_path, 2 ** i) for i in range(1, 7)])

@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 import plotting.utils as utils
 
 if __name__ == '__main__':
-    RUN_POWER = 6
+    RUN_POWER = 7
     durations = utils.extract_durations("../" + utils.BASE_PATH_ROUTING, 2 ** RUN_POWER,
                                         "travel_time_communicating_deserialize",
                                         False)
@@ -18,8 +18,8 @@ if __name__ == '__main__':
 
     # sns.scatterplot(data=data, x="length", y="duration")
 
-    plt.scatter(np.concatenate(lengths, axis=0), np.concatenate(durations, axis=0), color="blue", marker=".")
-    plt.xlabel("Length")
+    plt.scatter(np.concatenate(lengths, axis=0), np.concatenate(durations, axis=0), c="#1f77b4", marker=".")
+    plt.xlabel("Length in bytes")
     plt.ylabel("Duration in ms")
     plt.grid(True, alpha=0.3)
 

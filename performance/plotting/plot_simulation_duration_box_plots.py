@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-from utils import extract_sim_durations, BASE_PATH_ROUTING, BASE_PATH_NON_ROUTING
+from utils import extract_sim_durations, BASE_PATH_ROUTING
 
 
 def get_trace_file_path(base_path, mpi_slots, slot) -> str:
@@ -72,6 +72,6 @@ def plot_qsim_comm_subplots(data: [Dict[int, pd.DataFrame]]):
 
 if __name__ == '__main__':
     routing_durations: Dict[int, np.ndarray] = extract_sim_durations(BASE_PATH_ROUTING, 7)
-    no_routing_durations: Dict[int, np.ndarray] = extract_sim_durations(BASE_PATH_NON_ROUTING, 7)
+    # no_routing_durations: Dict[int, np.ndarray] = extract_sim_durations(BASE_PATH_NON_ROUTING, 7)
 
     plot_box_plot_sim_duration(routing_durations)
